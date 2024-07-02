@@ -1,0 +1,10 @@
+<%- include('partials/head') %>
+<body>
+    <%- include('partials/navbar') %>
+    <form action="/project/<%= proj.id %>?_method=PATCH" method="POST">
+        <div class="input-group flex-nowrap">
+            <input type="text" name="project_title" id="task_text" class="form-control" placeholder="Enter new project title..." aria-label="ProjectTitle" aria-describedby="addon-wrapping" value="<%= proj.title %>">
+            <button type="submit" id="change_btn" class="btn btn-outline-success">Change</button>
+        </div>
+    </form>
+</body>

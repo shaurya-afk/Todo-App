@@ -1,0 +1,98 @@
+<%-include('partials/head')%>
+<style>
+	.container{
+		margin: 12px;
+		padding: 12px;
+		border-radius: 12px;
+		position: relative;
+		top: 30%;
+		left: 20%;
+		width: 650px;
+		height: 350px;
+		background-color: whitesmoke;
+		overflow-y: auto;
+	}
+	.task-item{
+		margin: 8px;
+		padding: 7.5px;
+	}
+	.task-item button{
+		margin: 4.5px;
+	}
+	.tasks{
+		margin: 8px;
+		padding: 12px;
+	}
+	#del_btn{
+		position: relative;
+		left: 21%;
+	}
+	#edit_btn{
+		position: relative;
+		left: 50%;
+	}
+</style>
+
+<body>
+	<%-include('partials/navbar')%>
+	<div class="container">
+		<h3><%= proj.title %></h3>
+		<div class="input-group flex-nowrap">
+			<input type="text" id="task_text" class="form-control" placeholder="add task..." aria-label="Username" aria-describedby="addon-wrapping">
+			<button type="button" id="add_btn" class="btn btn-outline-success">Add</button>
+		</div>
+		<div class="tasks" id = "task_list"></div>
+	</div>
+	<button type="button" id="del_btn" class="btn btn-outline-danger">Delete Project</button>
+	<a href="/project/<%=proj.id%>/edit">
+		<button type="button" id="edit_btn" class="btn btn-outline-info">Edit Project Name</button>
+	</a>
+</body>
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+
+		const taskText = document.querySelector("#task_text");
+		const taskList = document.querySelector("#task_list");
+		const addBtn = document.querySelector("#add_btn");
+
+		addBtn.addEventListener("click", (e) => {
+			const task = taskText.value.trim();
+				if (task) {
+					const taskItem = document.createElement("div");
+					taskItem.classList.add("task-item");
+
+					const checkbox = document.createElement("input");
+					checkbox.type = "checkbox";
+					checkbox.classList.add("form-check-input");
+
+					const label = document.createElement("label");
+					label.classList.add("form-check-label");
+					label.textContent = task;
+
+					const removeBtn = document.createElement("button");
+					removeBtn.classList.add("btn-danger");
+					removeBtn.classList.add("btn");
+					removeBtn.classList.add("remove_btn")
+					removeBtn.textContent = "remove";
+
+					taskItem.appendChild(checkbox);
+					taskItem.appendChild(label);
+					taskItem.appendChild(removeBtn);
+
+					taskList.appendChild(taskItem);
+
+					removeBtn.addEventListener("click", (e) => {
+						taskList.removeChild(taskItem);
+					})
+
+					taskText.value = "";
+				}
+		});
+		taskText.addEventListener("keypress", (e) => {
+			if(e.key === "Enter"){
+				addBtn.click();
+			}
+		})
+	});
+</script>
+</html>

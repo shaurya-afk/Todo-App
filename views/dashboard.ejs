@@ -1,0 +1,29 @@
+<%-include('partials/head')%>
+<style>
+	.container
+	{
+		position: relative;
+		text-align: center;
+		justify-content: center;
+		text-transform: uppercase;
+	}
+	.container a{
+		text-decoration: none;
+		color: rgb(136, 136, 136);
+	}
+</style>
+<body>
+	<%-include('partials/navbar')%>
+	<div class="container">
+		<h1>your projects</h1>
+		<%if(projects.length > 0){%>
+			<%for(let proj of projects){%>
+				<a href="/project/<%= proj.id %>">
+					<button type="button" class="btn btn-outline-dark"><%= proj.title %></button>
+				</a>
+			<%}%>
+		<%}else{%>
+			<h5>bhai project bana le...kya kar raha hai zindagi mein??!</h5>
+		<%}%>
+	</div>
+</body>
