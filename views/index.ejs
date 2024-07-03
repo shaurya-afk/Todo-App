@@ -29,7 +29,8 @@
 	}
 	#edit_btn{
 		position: relative;
-		left: 50%;
+		top: -40px;
+		left: 60%;
 	}
 </style>
 
@@ -43,7 +44,9 @@
 		</div>
 		<div class="tasks" id = "task_list"></div>
 	</div>
-	<button type="button" id="del_btn" class="btn btn-outline-danger">Delete Project</button>
+	<form action="/project/<%=proj.id%>?_method=DELETE" method="post">
+		<button type="submit" id="del_btn" class="btn btn-outline-danger">Delete Project</button>
+	</form>
 	<a href="/project/<%=proj.id%>/edit">
 		<button type="button" id="edit_btn" class="btn btn-outline-info">Edit Project Name</button>
 	</a>

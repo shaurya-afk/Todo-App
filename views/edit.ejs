@@ -1,9 +1,21 @@
 <%- include('partials/head') %>
+
+<style>
+    #edit_project{
+        width: 650px;
+        position: relative;
+        left: 25%;
+        bottom: -55px;
+        text-align: center;
+        justify-content: center;
+    }
+</style>
+
 <body>
     <%- include('partials/navbar') %>
     <form action="/project/<%= proj.id %>?_method=PATCH" method="POST">
-        <div class="input-group flex-nowrap">
-            <input type="text" name="project_title" id="task_text" class="form-control" placeholder="Enter new project title..." aria-label="ProjectTitle" aria-describedby="addon-wrapping" value="<%= proj.title %>">
+        <div class="input-group flex-nowrap" id="edit_project">
+            <input type="text" name="project_title" id="name_text" class="form-control" placeholder="Enter new project title..." aria-label="ProjectTitle" aria-describedby="addon-wrapping" value="<%= proj.title %>">
             <button type="submit" id="change_btn" class="btn btn-outline-success">Change</button>
         </div>
     </form>

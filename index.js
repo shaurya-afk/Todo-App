@@ -3,6 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { v4: uuidv } = require('uuid');
 const methodOverride = require('method-override');
+const fs = require('fs').promises;
 
 const app = express();
 
@@ -12,24 +13,33 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const projects = [
-    {
-        id: uuidv(),
-        title: "DevPost Hackathon",
-        tasks: [
-            "task1",
-            "task2",
-            "task3",
-            "task4"
-        ]
-    }
-];
+const projectsFile = path.join(__dirname, 'projects.json');
 
-app.get('/', (req, res) => {
+const readProjects = async () => {
+    try{
+        const data = await fs.readFile(projectsFile, 'utf-8');
+        return JSON.parse(data);
+    }catch(err){
+        console.log(err);
+        return [];
+    }
+};
+
+const writeProjects = async (projects) => {
+    try {
+        await fs.writeFile(projectsFile, JSON.stringify(projects, null, 2));
+    } catch (err) {
+        console.error("Error writing to projects file:", err);
+    }
+};
+
+app.get('/', async (req, res) => {
+    const projects = await readProjects();
     res.render('dashboard', { projects });
 });
 
-app.get('/project/:id', (req, res) => {
+app.get('/project/:id', async (req, res) => {
+    const projects = await readProjects();
     const id = req.params.id;
     const proj = projects.find(proj => proj.id === id);
     if (proj) {
@@ -39,18 +49,21 @@ app.get('/project/:id', (req, res) => {
     }
 });
 
-app.get('/new', (req, res) => {
+app.get('/new', async (req, res) => {
     res.render('new');
 });
 
-app.post('/project', (req, res) => {
+app.post('/project', async (req, res) => {
+    const projects = await readProjects();
     const title = req.body.proj_name;
-    const newProject = { id: uuidv(), title };
+    const newProject = { id: uuidv(), title, tasks: []};
     projects.push(newProject);
+    await writeProjects(projects);
     res.redirect(`/project/${newProject.id}`);
 });
 
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
+    const projects = await readProjects();
     const query = req.query.proj_search;
     const result = projects.find(proj => proj.id === query || proj.title.toLowerCase().split(" ").join("") === query.toLowerCase().split(" ").join(""));
     if (result) {
@@ -60,7 +73,8 @@ app.get('/search', (req, res) => {
     }
 });
 
-app.get('/project/:id/edit', (req, res) => {
+app.get('/project/:id/edit', async (req, res) => {
+    const projects = await readProjects();
 	const { id } = req.params;
 	const proj = projects.find(proj => proj.id === id);
     if(proj){
@@ -70,16 +84,26 @@ app.get('/project/:id/edit', (req, res) => {
     }
 })
 
-app.patch('/project/:id', (req, res) => {
+app.patch('/project/:id',async  (req, res) => {
+    const projects = await readProjects();
 	const { id } = req.params;
 	const newTitle = req.body.project_title;
 	const project = projects.find(proj => proj.id === id);
 	if (project) {
         project.title = newTitle;
+        await writeProjects(projects);
         res.redirect('/');
     }else{
         res.send(`${id} not found!!`)
     }
+})
+
+app.delete('/project/:id', async (req, res) => {
+    let projects = await readProjects();
+    const {id} = req.params;
+    projects = projects.filter(proj => proj.id !== id);
+    await writeProjects(projects);
+    res.redirect('/');
 })
 
 app.listen(8080, () => {
