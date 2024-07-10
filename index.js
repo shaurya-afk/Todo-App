@@ -12,6 +12,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 const projectsFile = path.join(__dirname, 'projects.json');
 
@@ -60,6 +61,35 @@ app.post('/project', async (req, res) => {
     projects.push(newProject);
     await writeProjects(projects);
     res.redirect(`/project/${newProject.id}`);
+});
+
+app.post('/project/:id/task', async (req, res) => {
+    const projects = await readProjects();
+    const {id} = req.params;
+    const {task} = req.body;
+    const project = projects.find(proj => proj.id === id);
+    if(project){
+        project.tasks.push(task);
+        // console.log();
+        await writeProjects(projects);
+        res.status(200).send('Task Added');
+    }else{
+        res.status(404).send('Project not found!!');
+    }
+});
+
+app.delete('/project/:id/task', async (req, res) => {
+    const projects = await readProjects();
+    const { id } = req.params;
+    const { task } = req.body;
+    const project = projects.find(proj => proj.id === id);
+    if (project) {
+        project.tasks = project.tasks.filter(t => t !== task);
+        await writeProjects(projects);
+        res.status(200).send('Task removed');
+    } else {
+        res.status(404).send('Project not found');
+    }
 });
 
 app.get('/search', async (req, res) => {

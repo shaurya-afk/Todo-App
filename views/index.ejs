@@ -52,50 +52,108 @@
 	</a>
 </body>
 <script>
-	document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
+        const taskText = document.querySelector("#task_text");
+        const taskList = document.querySelector("#task_list");
+        const addBtn = document.querySelector("#add_btn");
 
-		const taskText = document.querySelector("#task_text");
-		const taskList = document.querySelector("#task_list");
-		const addBtn = document.querySelector("#add_btn");
+        const tasks = `<%=JSON.stringify(proj.tasks)%>`; // Get tasks from server
 
-		addBtn.addEventListener("click", (e) => {
-			const task = taskText.value.trim();
-				if (task) {
-					const taskItem = document.createElement("div");
-					taskItem.classList.add("task-item");
+        // Render existing tasks
+        tasks.forEach(task => {
+            const taskItem = document.createElement("div");
+            taskItem.classList.add("task-item");
 
-					const checkbox = document.createElement("input");
-					checkbox.type = "checkbox";
-					checkbox.classList.add("form-check-input");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("form-check-input");
 
-					const label = document.createElement("label");
-					label.classList.add("form-check-label");
-					label.textContent = task;
+            const label = document.createElement("label");
+            label.classList.add("form-check-label");
+            label.textContent = task;
 
-					const removeBtn = document.createElement("button");
-					removeBtn.classList.add("btn-danger");
-					removeBtn.classList.add("btn");
-					removeBtn.classList.add("remove_btn")
-					removeBtn.textContent = "remove";
+            const removeBtn = document.createElement("button");
+            removeBtn.classList.add("btn-danger");
+            removeBtn.classList.add("btn");
+            removeBtn.classList.add("remove_btn");
+            removeBtn.textContent = "remove";
 
-					taskItem.appendChild(checkbox);
-					taskItem.appendChild(label);
-					taskItem.appendChild(removeBtn);
+            taskItem.appendChild(checkbox);
+            taskItem.appendChild(label);
+            taskItem.appendChild(removeBtn);
 
-					taskList.appendChild(taskItem);
+            taskList.appendChild(taskItem);
 
-					removeBtn.addEventListener("click", (e) => {
-						taskList.removeChild(taskItem);
-					})
+            removeBtn.addEventListener("click", async (e) => {
+                taskList.removeChild(taskItem);
 
-					taskText.value = "";
-				}
-		});
-		taskText.addEventListener("keypress", (e) => {
-			if(e.key === "Enter"){
-				addBtn.click();
-			}
-		})
-	});
+                await fetch(`/project/<%= proj.id %>/task`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ task })
+                });
+            });
+        });
+
+        addBtn.addEventListener("click", async (e) => {
+            const task = taskText.value.trim();
+            if (task) {
+                console.log('Adding task:', task);  // Log task being added
+                const response = await fetch(`/project/<%= proj.id %>/task`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ task })
+                });
+                console.log('Response:', await response.text());  // Log server response
+
+                const taskItem = document.createElement("div");
+                taskItem.classList.add("task-item");
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.classList.add("form-check-input");
+
+                const label = document.createElement("label");
+                label.classList.add("form-check-label");
+                label.textContent = task;
+
+                const removeBtn = document.createElement("button");
+                removeBtn.classList.add("btn-danger");
+                removeBtn.classList.add("btn");
+                removeBtn.classList.add("remove_btn");
+                removeBtn.textContent = "remove";
+
+                taskItem.appendChild(checkbox);
+                taskItem.appendChild(label);
+                taskItem.appendChild(removeBtn);
+
+                taskList.appendChild(taskItem);
+
+                removeBtn.addEventListener("click", async (e) => {
+                    taskList.removeChild(taskItem);
+
+                    await fetch(`/project/<%= proj.id %>/task`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ task })
+                    });
+                });
+
+                taskText.value = "";
+            }
+        });
+
+        taskText.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                addBtn.click();
+            }
+        });
+    });
 </script>
 </html>
